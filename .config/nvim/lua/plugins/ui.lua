@@ -31,6 +31,7 @@ return {
     config = {
       options = {
         globalstatus = true,
+        disable_filetypes = { statusline = { "lazy", "alha" } },
       },
     },
   },
