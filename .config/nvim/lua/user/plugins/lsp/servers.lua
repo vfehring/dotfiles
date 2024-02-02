@@ -1,25 +1,25 @@
 ---@type lspconfig.options
 local servers = {
+  angularls = {},
+  arduino_language_server = {},
+  astro = {},
   bashls = {},
   clangd = {},
   cssls = {},
-  tsserver = {},
+  denols = {},
+  docker_compose_language_service = {},
+  dockerls = {},
+  gopls = {},
+  graphql = {},
   html = {},
   jsonls = {},
+  lua_ls = {},
+  prismals = {},
   pyright = {},
-  yamlls = {},
-  sumneko_lua = {
-    settings = {
-      Lua = {
-        workspace = {
-          checkThirdParty = false,
-        },
-        completion = {
-          callSnippet = "Replace",
-        },
-      },
-    },
-  },
+  rust_analyzer = {},
+  tailwindcss = {},
+  tsserver = {},
+  vimls = {},
 }
 
 return servers
