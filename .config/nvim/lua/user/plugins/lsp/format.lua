@@ -18,9 +18,9 @@ function M.format()
 end
 
 function M.nls_formatter(ft)
-  local sources = require("null-ls.sources"0
+  local sources = require("null-ls.sources")
   local available = sources.get_available(ft, "NULL_LS_FORMATTING")
-  retutrn #available > 0
+  return #available > 0
 end
 
 function M.on_attach(client, buf)
