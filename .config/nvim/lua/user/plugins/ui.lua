@@ -3,7 +3,7 @@ return {
   {
     "rcarriga/nvim-notify",
     init = function()
-      vim.notify = function()
+      vim.notify = function(...)
         vim.notify = require("notify")
         return vim.notify(...)
       end
@@ -68,10 +68,19 @@ return {
         dashboard.button("c", " " .. " Config", ":e $MYVIMRC <CR>"),
         dashboard.button("q", " " .. " Quit", ":qa<CR>"),
       }
-      dashboard.section.footer.opts.hl = "Type"
-      dashboard.section.header.opts.hl = "Include"
-      dashboard.section.buttons.opts.hl = "Keyword"
-      dashboard.opts.opts.noautocmd = true
+      for _, button in ipairs(dashboard.section.buttons.val) do
+        button.opts.hl = "AlphaButtons"
+        button.opts.hl_shortcut = "AlphaShortcut"
+      end
+      dashboard.section.footer.opts.hl = "AlphaFooter"
+      dashboard.section.header.opts.hl = "AlphaHeader"
+      dashboard.section.buttons.opts.hl = "AlphaButtons"
+      dashboard.opts.layout[1].val = 8
+
+      if vim.bo[0].filetype == "lazy" then
+        vim.notify("Missing plugins installed!", vim.log.levels.INFO, { title = "LazyVim" })
+        vim.cmd.close()
+      end
 
       require("alpha").setup(dashboard.opts)
 
@@ -80,7 +89,7 @@ return {
         callback = function()
           local stats = require("lazy").stats()
           local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
-          dashboard.section.footer.val = "🎉 Neovim loaded " .. stats.count .. " plugins in " .. ms .. "ms"
+          dashboard.section.footer.val = "⚡Neovim loaded " .. stats.count .. " plugins in " .. ms .. "ms"
           pcall(vim.cmd.AlphaRedraw)
         end,
       })
