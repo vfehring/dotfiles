@@ -23,14 +23,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import os
 import subprocess
-
-#from libqtile.log_utils import logger
-from libqtile import bar, layout, widget
+from libqtile.log_utils import logger
+from libqtile import bar, layout, widget, hook, qtile
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 #from libqtile.utils import guess_terminal
 
+picom_on = None
+
+@hook.subscribe.startup_once
+def autostart():
+    global picom_on
+    subprocess.run(['picom', '--experimental-backends', '-b'])
+    picom_on = True
+    qtile.widgets_map['textbox'].update('\uf205' if picom_on else '\uf204')
 
 def is_muted():
     output = str(subprocess.check_output(['pactl', 'get-sink-mute', '@DEFAULT_SINK@']))
@@ -43,6 +51,11 @@ def raise_volume(qtile):
     else:
         subprocess.run(['pactl', 'set-sink-volume', '@DEFAULT_SINK@', '+5%'])
 
+def toggle_picom():
+    global picom_on
+    output = int(subprocess.check_output(os.path.expanduser('~/.config/qtile/scripts/toggle-picom.sh')))
+    picom_on = (output == 1)
+    qtile.widgets_map['textbox'].update('\uf205' if picom_on else '\uf204')
 
 # 1 alt
 # 4 super
@@ -79,6 +92,7 @@ keys = [
     Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
     Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod], "m", lazy.window.toggle_maximize(), desc="Toggle maximize"),
+    Key([mod, 'control'], "f", lazy.window.toggle_floating(), desc="Toggle floating"),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
@@ -117,7 +131,11 @@ for vt in range(1, 8):
 
 
 groups = [
-    Group(name='1', label='Dev', spawn='alacritty'),
+    Group(name='1', label='Dev', spawn='alacritty',
+        layouts=[
+            layout.MonadTall(single_border_width=0, single_margin=20, margin=20, border_normal='#1e1f28', border_focus='#00ffff', border_width=2)
+        ]
+    ),
     Group(name='2', label='Chat', spawn='discord'),
     Group(name='3', label='Mail', spawn='thunderbird'),
     Group(name='4', label='Web', spawn='firefox'),
@@ -155,7 +173,7 @@ layouts = [
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
     # layout.Matrix(),
-    layout.MonadTall(single_border_width=0, margin_on_single=10, margin=5, border_normal='#1e1f28', border_focus='#00ffff', border_width=4),
+    layout.MonadTall(single_border_width=0, single_margin=0, margin=20, border_normal='#1e1f28', border_focus='#00ffff', border_width=4),
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
@@ -191,6 +209,11 @@ screens = [
     Screen(
         top=bar.Bar(
             [
+                widget.TextBox(text='\uf205' if picom_on else '\uf204',
+                    fontsize=30, width=40, padding=5,
+                    background=colors[2], foreground=colors[7],
+                    mouse_callbacks={'Button1': toggle_picom}),
+                widget.Spacer(length=5, background=colors[2]),
                 widget.GroupBox(highlight_method='block', highlight_color=colors[1], block_highlight_text_color=colors[7], background=colors[0], foreground=colors[7], this_current_screen_border=colors[10], active=colors[7], inactive=colors[7], padding_x=10, padding_y=5),
                 widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[0], foreground=colors[9]),
                 widget.Spacer(length=10, background=colors[9]),
@@ -202,7 +225,7 @@ screens = [
                 widget.Memory(measure_mem='G', format='\uf1c0 {MemPercent:>3.0f}%', padding=10, background=colors[2], foreground=colors[7], update_interval=5),
                 widget.DF(format='\uf7c9 {uf}/{s}{m}', padding=10, background=colors[2], foreground=colors[7], visible_on_warn=False, update_interval=60),
                 widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[3], foreground=colors[4]),
-                widget.Volume(get_colume_command='/home/vincenzo/.config/scripts/get-volume.sh', fmt='\ufa7d {:>4}', background=colors[4], foreground=colors[7], padding=10, update_interval=0.2),
+                widget.Volume(get_colume_command='/home/vincenzo/.config/qtile/scripts/get-volume.sh', fmt='\ufa7d {:>4}', background=colors[4], foreground=colors[7], padding=10, update_interval=0.2),
                 widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[4], foreground=colors[5]),
                 widget.Clock(format="\uf5ed %a %b %d %H:%M", padding=10, background=colors[5], foreground=colors[7]),
                 widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[5], foreground=colors[6]),
@@ -244,7 +267,11 @@ floating_layout = layout.Floating(
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-    ]
+        Match(title='pcmanfm'), # File Manager
+    ],
+    border_normal='#1e1f28',
+    border_focus='#00ffff',
+    border_width=4
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"

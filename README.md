@@ -9,7 +9,7 @@ Ensure you have the following installed on your system
 ### Dependencies
 
 ```
-pacman -S git stow pcmanfm scrot
+pacman -S git stow pcmanfm scrot picom
 ```
 
 ## Installation
