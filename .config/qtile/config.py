@@ -41,6 +41,14 @@ def autostart():
     qtile.widgets_map['textbox'].update('\uf205' if picom_on else '\uf204')
     #lazy.reload_config()
 
+@lazy.window.function
+def center_and_resize_floating(window):
+    window.toggle_floating()
+
+    if window.floating:
+        window.cmd_set_size_floating(int(1920 * 0.7), int(1080 * 0.7))
+        window.cmd_center()
+
 def is_muted():
     output = str(subprocess.check_output(['pactl', 'get-sink-mute', '@DEFAULT_SINK@']))
 
@@ -93,7 +101,7 @@ keys = [
     Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
     Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod], "m", lazy.window.toggle_maximize(), desc="Toggle maximize"),
-    Key([mod, 'control'], "f", lazy.window.toggle_floating(), desc="Toggle floating"),
+    Key([mod, 'control'], "f", center_and_resize_floating(), desc="Toggle floating"),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
@@ -312,7 +320,8 @@ floating_layout = layout.Floating(
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-        Match(title='pcmanfm'), # File Manager
+        Match(wm_class='pcmanfm'), # File Manager
+        Match(wm_class='feh'), # Image viewer
     ],
     border_normal='#1e1f28',
     border_focus='#00ffff',
