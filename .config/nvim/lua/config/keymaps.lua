@@ -62,6 +62,6 @@ vim.cmd([[
 ]])
 
 require("which-key").register({
-  f = { name + "+file" },
+  f = { name = "+file" },
   g = { name = "+git" },
 }, { prefix = "<leader>" })
