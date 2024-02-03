@@ -23,20 +23,42 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import re
+import subprocess
 
-from libqtile import bar, layout, qtile, widget, hook
+from libqtile.log_utils import logger
+from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 
+
+def is_muted():
+    output = str(subprocess.check_output(['pactl', 'get-sink-mute', '@DEFAULT_SINK@']))
+
+    return 'yes' in output
+
+def raise_volume(qtile):
+    if is_muted():
+        subprocess.run(['pactl', 'set-sink-mute', '@DEFAULT_SINK@', '0'])
+    else:
+        subprocess.run(['pactl', 'set-sink-volume', '@DEFAULT_SINK@', '+5%'])
+
+
+# 1 alt
+# 4 super
 mod = "mod4"
-terminal = guess_terminal()
+
+#terminal = guess_terminal()
+terminal = 'alacritty'
 
 keys = [
-    # Sound
-    Key([], "XF86AudioMute", lazy.spawn("amixer -q set Master toggle")),
-    Key([], "XF86AudioLowerVolume", lazy.spawn("amixer -c 0 sset Master 1- unmute")),
-    Key([], "XF86AudioRaiseVolume", lazy.spawn("amixer -c 0 sset Master 1+ unmute")),
+    Key([], 'XF86MonBrightnessUp', lazy.spawn('brightnessctl s +5%'), desc='Increase Screen Brightness'),
+    Key([], 'XF86MonBrightnessDown', lazy.spawn('brightnessctl s 5%-'), desc='Decrease Screen Brightness'),
+    Key([], 'XF86AudioMute', lazy.spawn('pactl set-sink-mute @DEFAULT_SINK@ toggle'), desc='Mute Audio'),
+    Key([], 'XF86AudioRaiseVolume', lazy.function(raise_volume), desc='Increase Volume'),
+    Key([], 'XF86AudioLowerVolume', lazy.spawn('pactl set-sink-volume @DEFAULT_SINK@ -10%'), desc='Decrease Volume'),
+    Key([], 'Print', lazy.spawn('scrot /home/vincenzo/Pictures/Screenshots/%Y-%m-%d-%T-screenshot.png'), desc='Take a screenshot'),
     # A list of available commands that can be bound to keys can be found
     # at https://docs.qtile.org/en/latest/manual/config/lazy.html
     # Switch between windows
@@ -81,6 +103,7 @@ keys = [
     Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating on the focused window"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    Key([mod], "d", lazy.spawn('rofi -show drun'), desc="Spawn a command using a prompt widget"),
     Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
 ]
 
@@ -230,4 +253,4 @@ wl_input_rules = None
 #
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
-wmname = "LG3D"
+wmname = "Qtile"
