@@ -121,7 +121,13 @@ for vt in range(1, 8):
     )
 
 
-groups = [Group(i) for i in "123456789"]
+groups = [
+    Group(name='1', label='Dev', spawn='alacritty'),
+    Group(name='2', label='Chat', spawn='discord'),
+    Group(name='3', label='Mail', spawn='thunderbird'),
+    Group(name='4', label='Web', spawn='firefox'),
+    Group(name='5', label='Etc', spawn=None)
+]
 
 for i in groups:
     keys.extend(
@@ -148,13 +154,13 @@ for i in groups:
     )
 
 layouts = [
-    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
-    layout.Max(),
+    # layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
+    # layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
     # layout.Matrix(),
-    # layout.MonadTall(),
+    layout.MonadTall(single_border_width=0, margin_on_single=10, margin=5, border_normal='#1e1f28', border_focus='#00ffff', border_width=4),
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
@@ -164,43 +170,59 @@ layouts = [
 ]
 
 widget_defaults = dict(
-    font="sans",
-    fontsize=12,
+    font="Ubuntu Mono Nerd Font Bold",
+    #font="NotoSans Nerd Font",
+    fontsize=22,
     padding=3,
+    background='#778899',
+    foreground='#000000'
 )
 extension_defaults = widget_defaults.copy()
 
+colors = ['#ffaaff', #lightpink
+          '#ffb86c', #orange
+          '#f1fa8c', #yellow
+          '#50fa7b', #green
+          '#00aaff', #darkblue
+          '#5f55ff', #purple
+          '#ff55ff', #pink
+          '#24273a', #black
+          '#f8f8f2', #white
+          '#8700ff', #darkpurple
+          '#00ffff'  #cyan
+]
+
 screens = [
     Screen(
-        bottom=bar.Bar(
+        top=bar.Bar(
             [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        "launch": ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
-                ),
-                widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
-                # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
-                # widget.StatusNotifier(),
-                widget.Systray(),
-                widget.Volume(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-                widget.QuickExit(),
+                widget.GroupBox(highlight_method='block', highlight_color=colors[1], block_highlight_text_color=colors[7], background=colors[0], foreground=colors[7], this_current_screen_border=colors[10], active=colors[7], inactive=colors[7], padding_x=10, padding_y=5),
+                widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[0], foreground=colors[9]),
+                widget.Spacer(length=10, background=colors[9]),
+                widget.Prompt(background=colors[9], foreground=colors[7]),
+                widget.WindowName(background=colors[9], foreground=colors[7]),
+                widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[9], foreground=colors[1]),
+                widget.CPU(format='\uf029 {load_percent:>3.0f}%', padding=10, background=colors[1], foreground=colors[7], update_interval=5),
+                widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[1], foreground=colors[2]),
+                widget.Memory(measure_mem='G', format='\uf1c0 {MemPercent:>3.0f}%', padding=10, background=colors[2], foreground=colors[7], update_interval=5),
+                widget.DF(format='\uf7c9 {uf}/{s}{m}', padding=10, background=colors[2], foreground=colors[7], visible_on_warn=False, update_interval=60),
+                widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[3], foreground=colors[4]),
+                widget.Volume(get_colume_command='/home/vincenzo/.config/scripts/get-volume.sh', fmt='\ufa7d {:>4}', background=colors[4], foreground=colors[7], padding=10, update_interval=0.2),
+                widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[4], foreground=colors[5]),
+                widget.Clock(format="\uf5ed %a %b %d %H:%M", padding=10, background=colors[5], foreground=colors[7]),
+                widget.TextBox(text='\ue0b2', fontsize=40, padding=0, background=colors[5], foreground=colors[6]),
+                widget.Battery(format='{char} {percent:2.0%}', discharge_char='\uf58b', charge_char='\uf583', full_char='\uf583', show_short_text=False, background=colors[6], foreground=colors[7], low_foreground=colors[7], padding=10, update_interval=60),
+                widget.Spacer(length=5, background=colors[6])
             ],
-            24,
-            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
+            40, # top bar size
+            margin=[0,0,0,0],
+            border_width=[0, 0, 0, 0], # Draw top and bottom borders
+            border_color=["#000000", "#000000", "#000000", "#000000"], # Borders are magenta
+            background='#a9a1e1',
+            opacity=1.0
         ),
-        # You can uncomment this variable if you see that on X11 floating resize/moving is laggy
-        # By default we handle these events delayed to already improve performance, however your system might still be struggling
-        # This variable is set to None (no cap) by default, but you can set it to 60 to indicate that you limit it to 60 events per second
-        # x11_drag_polling_rate = 60,
+        wallpaper='~/.config/qtile/clouds-night.jpg',
+        wallpaper_mode='stretch',
     ),
 ]
 
