@@ -49,6 +49,43 @@ def center_and_resize_floating(window):
         window.cmd_set_size_floating(int(1920 * 0.7), int(1080 * 0.7))
         window.cmd_center()
 
+@lazy.function
+def grow_horizontal(qtile, direction):
+    group = qtile.current_window.group
+    main_window = group.windows[0]
+    curr_window = qtile.current_window
+    curr_window_x = curr_window.cmd_get_position()[0]
+    window_xs = [window.cmd_get_position()[0] for window in group.windows]
+    curr_layout = qtile.current_layout
+
+    if max(window_xs) > curr_window_x:
+        # curr_window is on left
+        if (curr_window == main_window):
+            curr_layout.cmd_shrink_main() if direction == 'h' else curr_layout.cmd_grow_main()
+        else:
+            curr_layout.cmd_grow_main() if direction == 'h' else curr_layout.cmd_shrink_main()
+    else:
+        # curr_window is on right
+        if (curr_window == main_window):
+            curr_layout.cmd_grow_main() if direction == 'h' else curr_layout.cmd_shrink_main()
+        else:
+            curr_layout.cmd_shrink_main() if direction == 'h' else curr_layout.cmd_grow_main()
+
+@lazy.function
+def grow_vertical(qtile, direction):
+    curr_layout = qtile.current_layout
+    group = qtile.current_window.group
+    curr_window = qtile.current_window
+    curr_window_y = curr_window.cmd_get_position()[1]
+    window_ys = [window.cmd_get_position()[1] for window in group.windows]
+
+    if min(window_ys) == curr_window_y:
+        # curr window is at top
+        curr_layout.cmd_shrink() if direction == 'k' else curr_layout.cmd_grow()
+    else:
+        # curr window is in middle or bottom
+        curr_layout.cmd_grow() if direction == 'k' else curr_layout.cmd_shrink()
+
 def is_muted():
     output = str(subprocess.check_output(['pactl', 'get-sink-mute', '@DEFAULT_SINK@']))
 
@@ -90,16 +127,17 @@ keys = [
     Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+    Key([mod, "control"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
+    Key([mod, "control"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key([mod, "control"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
+    Key([mod, "control"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
-    Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
+    Key([mod, "shift"], "h", grow_horizontal('h'), desc="Grow window to the left"),
+    Key([mod, "shift"], "l", grow_horizontal('l'), desc="Grow window to the right"),
+    Key([mod, "shift"], "j", grow_vertical('j'), desc="Grow window down"),
+    Key([mod, "shift"], "k", grow_vertical('k'), desc="Grow window up"),
+    Key([mod, 'shift'], 'space', lazy.layout.flip(), desc='Flip main side'),
     Key([mod], "m", lazy.window.toggle_maximize(), desc="Toggle maximize"),
     Key([mod, 'control'], "f", center_and_resize_floating(), desc="Toggle floating"),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
@@ -118,14 +156,12 @@ keys = [
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating on the focused window"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod], "d", lazy.spawn('rofi -show drun'), desc="Spawn a command using a prompt widget"),
     Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
 ]
 
-# Add key bindings to switch VTs in Wayland.
 # We can't check qtile.core.name in default config as it is loaded before qtile is started
 # We therefore defer the check until the key binding is run by using .when(func=...)
 for vt in range(1, 8):
