@@ -46,7 +46,7 @@ def is_muted():
 
     return 'yes' in output
 
-def raise_volume(qtile):
+def raise_volume(*args):
     if is_muted():
         subprocess.run(['pactl', 'set-sink-mute', '@DEFAULT_SINK@', '0'])
     else:
@@ -257,7 +257,7 @@ screens = [
                 widget.Net(interface='wlp2s0', format='\uf1eb  {down} \uf175\uf176 {up}', background=colors[3], foreground=colors[7], padding=10, update_interval=5),
                 widget.TextBox(text='\ue0b2', fontsize=40, padding=0,  background=colors[3], foreground=colors[4]),
                 #widget.Bluetooth(),
-                widget.Volume(get_volume_command="/home/siam/get-volume.sh", fmt='\ufa7d {:>4}', background=colors[4], foreground=colors[7], padding=10, update_interval=0.2),
+                widget.Volume(get_volume_command=os.path.expanduser('~/.config/qtile/scripts/get-volume.sh'), fmt='\ufa7d {:>4}', background=colors[4], foreground=colors[7], padding=10, update_interval=0.2),
                 #widget.OpenWeather(location='Ottawa'),
                 #widget.Wttr(location={'Ottawa': 'Ottawa'}),
                 widget.TextBox(text='\ue0b2', fontsize=40, padding=0,  background=colors[4], foreground=colors[5]),
