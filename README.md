@@ -10,6 +10,7 @@ Ensure you have the following installed on your system
 
 ```
 pacman -S git stow pcmanfm scrot picom connman pavucontrol conky
+yay -S connman-gtk
 ```
 
 ## Installation
