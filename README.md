@@ -6,16 +6,10 @@ This directory contains the dotfiles for my system
 
 Ensure you have the following installed on your system
 
-### Git
+### Dependencies
 
 ```
-pacman -S git
-```
-
-### Stow
-
-```
-pacman -S stow
+pacman -S git stow pcmanfm scrot
 ```
 
 ## Installation
