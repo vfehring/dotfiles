@@ -4,12 +4,12 @@ return {
     event = "BufReadPre",
     config = {
       signs = {
-        add = { text = "▎" },
-        change = { text = "▎" },
-        delete = { text = "契" },
-        topdelete = { text = "契" },
-        changedelete = { text = "▎" },
-        untracked = { text = "▎" },
+        add = { text = "" },
+        change = { text = "" },
+        delete = { text = "󰮉" },
+        topdelete = { text = "󰮉" },
+        changedelete = { text = "󰮉" },
+        untracked = { text = "󰵺" },
       },
     },
   },
