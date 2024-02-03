@@ -60,8 +60,3 @@ vim.cmd([[
   xnoremap * :<C-u>call g:VSetSearch('/')<CR>/<C-R>=@/<CR><CR>
   xnoremap # :<C-u>call g:VSetSearch('?')<CR>?<C-R>=@/<CR><CR>
 ]])
-
-require("which-key").register({
-  f = { name = "+file" },
-  g = { name = "+git" },
-}, { prefix = "<leader>" })
